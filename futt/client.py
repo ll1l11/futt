@@ -63,10 +63,16 @@ def make_test_environ_builder(
 
 
 class TestClient(FlaskClient):
+    attr_headers = dict(
+        auth_token='X-Auth-Token',
+        api_token='X-API-Token'
+    )
+
     def open(self, *args, **kwargs):
-        auth_token = getattr(self, 'auth_token', None)
-        if auth_token:
-            kwargs.setdefault('headers', {})['X-Auth-Token'] = auth_token
+        for k, v in self.attr_headers.items():
+            token = getattr(self, k, None)
+            if token:
+                kwargs.setdefault('headers', {})[v] = token
 
         as_tuple = kwargs.pop('as_tuple', False)
         buffered = kwargs.pop('buffered', False)
